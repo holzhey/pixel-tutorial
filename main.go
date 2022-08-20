@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"image/png"
 	"math"
+	"math/rand"
 	"os"
 	"time"
 
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
@@ -14,9 +17,22 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
-var gopherimg *pixel.Sprite
+type Noise struct{}
 
+var gopherimg *pixel.Sprite
 var uTime, uSpeed float32
+
+func (n Noise) Stream(samples [][2]float64) (num int, ok bool) {
+	for i := range samples {
+		samples[i][0] = rand.Float64()*2 - 1
+		samples[i][1] = rand.Float64()*2 - 1
+	}
+	return len(samples), true
+}
+
+func (n Noise) Err() error {
+	return nil
+}
 
 func run() {
 	cfg := pixelgl.WindowConfig{
@@ -65,6 +81,10 @@ func run() {
 
 	start := time.Now()
 	angle := math.Pi
+
+	sr := beep.SampleRate(44100)
+	speaker.Init(sr, sr.N(time.Second/10))
+	speaker.Play(Noise{})
 
 	for !win.Closed() {
 		win.Clear(colornames.Skyblue)
