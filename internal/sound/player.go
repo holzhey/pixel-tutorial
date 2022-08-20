@@ -37,7 +37,6 @@ func GetSineGenerator(sampleRate int) beep.Streamer {
 	two := sr.N(2 * time.Second)
 
 	sounds := []beep.Streamer{
-		beep.Callback(func() {}),
 		beep.Take(two, sine),
 	}
 
