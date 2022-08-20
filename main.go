@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/faiface/beep"
+	"github.com/faiface/beep/generators"
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -83,8 +84,21 @@ func run() {
 	angle := math.Pi
 
 	sr := beep.SampleRate(44100)
-	speaker.Init(sr, sr.N(time.Second/10))
-	speaker.Play(Noise{})
+	//speaker.Init(sr, sr.N(time.Second/10))
+	//speaker.Play(Noise{})
+	speaker.Init(sr, 4100)
+
+	sine, err := generators.SinTone(sr, 1800)
+	if err != nil {
+		panic(err)
+	}
+	two := sr.N(2 * time.Second)
+
+	sounds := []beep.Streamer{
+		beep.Callback(func() {}),
+		beep.Take(two, sine),
+	}
+	speaker.Play(beep.Seq(sounds...))
 
 	for !win.Closed() {
 		win.Clear(colornames.Skyblue)
